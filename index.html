@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rubik Solver</title>
+  <title>3D Rubik's Cube Solver</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
@@ -14,12 +14,10 @@
     <header class="topbar">
       <div class="brand">
         <span class="cubemark" aria-hidden="true">
-          <span class="cubemark-face f1"></span>
-          <span class="cubemark-face f2"></span>
-          <span class="cubemark-face f3"></span>
+          <img src="Rubik's_cube.svg.webp" alt="" class="cube-logo">
         </span>
         <div class="brand-text">
-          <h1>Rubik Solver</h1>
+          <h1>3D Rubik's Cube Solver</h1>
           <p>Scan a cube, watch the fix.</p>
         </div>
       </div>
@@ -42,10 +40,10 @@
     </div>
 
     <main class="content">
-      <section class="panel capture-section">
+      <section class="panel capture-section" data-step-panel="1">
         <div class="panel-header">
           <div class="panel-title">
-            <span class="panel-index">01</span>
+            <span class="panel-index">1</span>
             <h2>Capture faces</h2>
           </div>
           <button id="cameraToggleBtn" class="ghost-btn">Turn on camera</button>
@@ -78,10 +76,10 @@
         </div>
       </section>
 
-      <section class="panel preview-section">
+      <section class="panel preview-section" data-step-panel="2">
         <div class="panel-header">
           <div class="panel-title">
-            <span class="panel-index">02</span>
+            <span class="panel-index">2</span>
             <h2>Check colors</h2>
           </div>
           <button id="resetBtn" class="ghost-btn">Reset</button>
@@ -140,6 +138,7 @@
 
     <footer class="app-footer">
       <p>Runs entirely in your browser — photos and colors never leave this device.</p>
+      <p>ⓒ Debapriyo Ganguly 2026</p>
     </footer>
   </div>
 
@@ -149,9 +148,9 @@
         <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg>
       </button>
 
-      <div class="panel-header">
+      <div class="panel-header" data-step-panel="3">
         <div class="panel-title">
-          <span class="panel-index">03</span>
+          <span class="panel-index">3</span>
           <h2 id="solutionModalTitle">Solve</h2>
         </div>
       </div>

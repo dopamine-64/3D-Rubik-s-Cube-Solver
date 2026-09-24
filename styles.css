@@ -22,7 +22,7 @@
   /* Text */
   --text: #eceef3;
   --text-muted: #9598a8;
-  --text-faint: #62657a;
+  --text-faint: #72758a;
 
   /* Accent (cube red) */
   --accent: #e2483f;
@@ -57,6 +57,26 @@ body {
   background: var(--bg-radial), var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* A faint fixed grain, like the matte texture of injection-molded plastic —
+   ties the whole page back to the physical object it represents instead of
+   sitting as flat, decorative color. Kept subtle enough to be felt, not seen. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+}
+
+.app {
+  position: relative;
+  z-index: 1;
 }
 
 :focus-visible {
@@ -108,39 +128,10 @@ kbd {
   gap: 14px;
 }
 
-/* Small isometric cube logomark, built from 3 rhombi — no image assets. */
-.cubemark {
-  position: relative;
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-}
-
-.cubemark-face {
-  position: absolute;
-  width: 17px;
-  height: 20px;
-  left: 8.5px;
-}
-
-.cubemark-face.f1 {
-  top: 0;
-  background: var(--c-white);
-  clip-path: polygon(0% 25%, 50% 0%, 100% 25%, 50% 50%);
-}
-
-.cubemark-face.f2 {
-  top: 9px;
-  left: -8.5px;
-  background: var(--c-red);
-  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%);
-}
-
-.cubemark-face.f3 {
-  top: 9px;
-  left: 8.5px;
-  background: var(--c-blue);
-  clip-path: polygon(0% 25%, 50% 0%, 50% 100%, 0% 75%);
+.cube-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
 }
 
 .brand-text h1 {
@@ -247,17 +238,37 @@ kbd {
 }
 
 .panel-index {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: var(--text-faint);
-  letter-spacing: 0.04em;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.panel-index.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.panel-index.done {
+  background: transparent;
+  border-color: #3c8f5c;
+  color: #4fbf7a;
 }
 
 .panel-title h2 {
   margin: 0;
   font-size: 1.05rem;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 /* ---------- Buttons ---------- */
@@ -271,7 +282,13 @@ kbd {
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 80ms ease, box-shadow 120ms ease;
+}
+
+.primary-btn:active:not(:disabled),
+.ghost-btn:active:not(:disabled) {
+  box-shadow: none;
 }
 
 .primary-btn {
@@ -750,6 +767,16 @@ kbd {
   cursor: grab;
   touch-action: none;
   user-select: none;
+  position: relative;
+  border-radius: 10px;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 48%, rgba(226, 72, 63, 0.08), transparent 70%),
+    linear-gradient(var(--border) 1px, transparent 1px) 0 0 / 28px 28px,
+    linear-gradient(90deg, var(--border) 1px, transparent 1px) 0 0 / 28px 28px,
+    var(--surface-sunken);
+  background-blend-mode: normal, overlay, overlay, normal;
+  mask-image: radial-gradient(ellipse 75% 75% at 50% 50%, #000 60%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 75% at 50% 50%, #000 60%, transparent 100%);
 }
 
 .cube3d-scene.dragging {
@@ -850,6 +877,18 @@ kbd {
   border-radius: var(--radius-lg);
   padding: 30px;
   box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.75), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+.solution-modal::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 30px;
+  right: 30px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent) 70%, transparent);
+  opacity: 0.85;
 }
 
 .solution-close {

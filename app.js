@@ -261,15 +261,26 @@ function updateSolveAvailability() {
 function updateProgressTrack() {
   const scanDone = allColorsAssigned();
   const solveDone = !!state.vis;
+  const isDone = (step) => (step === 1 && scanDone) || (step >= 2 && solveDone);
+  const isActive = (step) =>
+    (step === 1 && !scanDone) ||
+    (step === 2 && scanDone && !solveDone) ||
+    (step === 3 && solveDone);
+
   document.querySelectorAll(".progress-step").forEach((el) => {
     const step = Number(el.dataset.step);
-    const done = (step === 1 && scanDone) || (step >= 2 && solveDone);
-    const active =
-      (step === 1 && !scanDone) ||
-      (step === 2 && scanDone && !solveDone) ||
-      (step === 3 && solveDone);
-    el.classList.toggle("done", done);
-    el.classList.toggle("active", active);
+    el.classList.toggle("done", isDone(step));
+    el.classList.toggle("active", isActive(step));
+  });
+
+  // Mirror the same state onto each panel's own step badge, so the "which
+  // step am I on" signal is consistent wherever it appears in the UI.
+  document.querySelectorAll("[data-step-panel]").forEach((el) => {
+    const step = Number(el.dataset.stepPanel);
+    const badge = el.querySelector(".panel-index");
+    if (!badge) return;
+    badge.classList.toggle("done", isDone(step));
+    badge.classList.toggle("active", isActive(step));
   });
 }
 
@@ -1102,17 +1113,33 @@ function updateStepControls() {
   }
 }
 
+// The inverse of a move: a plain turn undoes with a prime, a prime undoes
+// with a plain turn, and a double undoes with itself (180° either way lands
+// on the same spot). Used to animate Prev as an actual reverse turn instead
+// of a plain snap-back.
+function invertMove(move) {
+  const face = faceOf(move);
+  const power = powerOf(move); // 1 = plain, 2 = double, 3 = prime
+  if (power === 2) return face + "2";
+  if (power === 3) return face;
+  return face + "'";
+}
+
 function goToStep(targetStep) {
   state.vis.step = targetStep;
   render3DCube(state.vis.snapshots[targetStep], state.vis.faceToColor);
   updateStepControls();
 }
 
+function setStepButtonsBusy(busy) {
+  nextStepBtn.disabled = busy;
+  prevStepBtn.disabled = busy;
+  restartStepBtn.disabled = busy;
+}
+
 function handleNextStep() {
   if (!state.vis || state.vis.step >= state.vis.moves.length) return;
-  nextStepBtn.disabled = true;
-  prevStepBtn.disabled = true;
-  restartStepBtn.disabled = true;
+  setStepButtonsBusy(true);
   const move = state.vis.moves[state.vis.step];
   animateLayerMove(move, () => {
     state.vis.step += 1;
@@ -1123,7 +1150,17 @@ function handleNextStep() {
 
 function handlePrevStep() {
   if (!state.vis || state.vis.step <= 0) return;
-  goToStep(state.vis.step - 1);
+  setStepButtonsBusy(true);
+  // Undo the move that led into the current step by animating its inverse,
+  // then land on the previous step's already-verified snapshot — same
+  // "animate for show, repaint from ground truth" approach as Next.
+  const moveToUndo = state.vis.moves[state.vis.step - 1];
+  const inverse = invertMove(moveToUndo);
+  animateLayerMove(inverse, () => {
+    state.vis.step -= 1;
+    render3DCube(state.vis.snapshots[state.vis.step], state.vis.faceToColor);
+    updateStepControls();
+  });
 }
 
 function handleRestartStep() {
