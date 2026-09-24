@@ -1,4 +1,4 @@
-# Rubik Solver
+# 3D Rubik's Cube Solver
 
 A minimal, single-page Rubik's Cube solver. Capture photos of all 6 faces,
 let it detect the sticker colors automatically (with manual correction),
