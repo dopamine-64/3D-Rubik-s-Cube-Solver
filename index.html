@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rubik Solver</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="cubemark" aria-hidden="true">
+          <span class="cubemark-face f1"></span>
+          <span class="cubemark-face f2"></span>
+          <span class="cubemark-face f3"></span>
+        </span>
+        <div class="brand-text">
+          <h1>Rubik Solver</h1>
+          <p>Scan a cube, watch the fix.</p>
+        </div>
+      </div>
+      <div class="progress-track" id="progressTrack">
+        <span class="progress-step" data-step="1">
+          <span class="progress-dot">1</span>Scan
+        </span>
+        <span class="progress-step" data-step="2">
+          <span class="progress-dot">2</span>Check
+        </span>
+        <span class="progress-step" data-step="3">
+          <span class="progress-dot">3</span>Solve
+        </span>
+      </div>
+    </header>
+
+    <div id="status" class="status">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span id="statusText">Capture all 6 faces to begin.</span>
+    </div>
+
+    <main class="content">
+      <section class="panel capture-section">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="panel-index">01</span>
+            <h2>Capture faces</h2>
+          </div>
+          <button id="cameraToggleBtn" class="ghost-btn">Turn on camera</button>
+        </div>
+
+        <div class="capture-stage">
+          <div class="camera-wrap" id="cameraWrap">
+            <video id="cameraVideo" autoplay playsinline muted></video>
+            <div class="camera-guide"></div>
+            <div class="camera-off-msg" id="cameraOffMsg">
+              <p>Camera is off</p>
+            </div>
+          </div>
+
+          <div class="capture-info">
+            <p class="capture-face-label">
+              Now capturing <strong id="currentFaceLabel">Up (U)</strong>
+            </p>
+            <p class="capture-hint" id="captureHint">
+              Turn on the camera, fill the frame with just this face, then press <kbd>Space</kbd> to capture.
+            </p>
+          </div>
+        </div>
+
+        <div class="thumbs-row" id="thumbsRow"></div>
+
+        <div class="actions">
+          <button id="detectBtn" class="ghost-btn" disabled>Re-detect colors</button>
+          <button id="solveBtn" class="primary-btn" disabled>Solve cube</button>
+        </div>
+      </section>
+
+      <section class="panel preview-section">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="panel-index">02</span>
+            <h2>Check colors</h2>
+          </div>
+          <button id="resetBtn" class="ghost-btn">Reset</button>
+        </div>
+
+        <div class="palette-row">
+          <div class="palette" id="palette">
+            <button type="button" class="swatch white active" data-color="white" title="White"></button>
+            <button type="button" class="swatch yellow" data-color="yellow" title="Yellow"></button>
+            <button type="button" class="swatch red" data-color="red" title="Red"></button>
+            <button type="button" class="swatch orange" data-color="orange" title="Orange"></button>
+            <button type="button" class="swatch blue" data-color="blue" title="Blue"></button>
+            <button type="button" class="swatch green" data-color="green" title="Green"></button>
+            <button type="button" class="swatch eraser" data-color="" title="Eraser (clear cell)">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 13.5 12 5.5a2 2 0 0 1 2.8 0l2 2a2 2 0 0 1 0 2.8L9 18H5.5L4 16.5z"/><path d="M11 8l4 4"/></svg>
+            </button>
+          </div>
+          <p class="palette-hint">Pick a color, then click cells to paint</p>
+        </div>
+
+        <div class="cube-net" id="cubeNet">
+          <div class="net-row empty"></div>
+          <div class="net-row">
+            <div class="face-block">
+              <div class="face-preview" data-face="U"></div>
+              <span class="face-badge">U <em>Up</em></span>
+            </div>
+          </div>
+          <div class="net-row middle-row">
+            <div class="face-block">
+              <div class="face-preview" data-face="L"></div>
+              <span class="face-badge">L <em>Left</em></span>
+            </div>
+            <div class="face-block">
+              <div class="face-preview" data-face="F"></div>
+              <span class="face-badge">F <em>Front</em></span>
+            </div>
+            <div class="face-block">
+              <div class="face-preview" data-face="R"></div>
+              <span class="face-badge">R <em>Right</em></span>
+            </div>
+            <div class="face-block">
+              <div class="face-preview" data-face="B"></div>
+              <span class="face-badge">B <em>Back</em></span>
+            </div>
+          </div>
+          <div class="net-row">
+            <div class="face-block">
+              <div class="face-preview" data-face="D"></div>
+              <span class="face-badge">D <em>Down</em></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Runs entirely in your browser — photos and colors never leave this device.</p>
+    </footer>
+  </div>
+
+  <div class="solution-overlay hidden" id="solutionOverlay">
+    <div class="solution-modal" role="dialog" aria-modal="true" aria-labelledby="solutionModalTitle">
+      <button id="solutionCloseBtn" class="ghost-btn icon-btn solution-close" title="Close" aria-label="Close">
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg>
+      </button>
+
+      <div class="panel-header">
+        <div class="panel-title">
+          <span class="panel-index">03</span>
+          <h2 id="solutionModalTitle">Solve</h2>
+        </div>
+      </div>
+
+      <div class="cube3d-wrap hidden" id="cube3dWrap">
+        <div class="cube3d-scene" id="cube3dScene">
+          <div class="cube3d" id="cube3d"></div>
+        </div>
+        <p class="cube3d-hint">Drag the cube to rotate it — check every side as you step through the solve.</p>
+        <div class="step-controls">
+          <button id="restartStepBtn" class="ghost-btn icon-btn" disabled title="Restart" aria-label="Restart">
+            <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v4h4"/><path d="M4.5 12a6 6 0 1 0 1.6-5.6L4 8"/></svg>
+          </button>
+          <button id="prevStepBtn" class="ghost-btn" disabled>Prev</button>
+          <button id="nextStepBtn" class="primary-btn" disabled>Next move</button>
+        </div>
+        <p class="step-label" id="stepLabel">Press Next move to begin.</p>
+      </div>
+
+      <ol id="solutionSteps" class="solution-moves"></ol>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/cubejs/lib/cube.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cubejs/lib/solve.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
