@@ -4,23 +4,6 @@ A minimal, single-page Rubik's Cube solver. Capture photos of all 6 faces,
 let it detect the sticker colors automatically (with manual correction),
 then get a full step-by-step solution.
 
-## Setup
-
-Just open `index.html` in a browser — no build step needed.
-
-Live camera access (`getUserMedia`) requires a **secure context** — that
-means `https://` or `localhost`. Opening `index.html` directly as a
-`file://` URL will usually block the camera in most browsers. Serve it
-locally instead:
-
-```bash
-npx serve .
-```
-
-Then visit the printed local URL on your phone (same Wi-Fi network, and use
-its `https`/tunnel option if your browser still blocks camera on plain
-`http`) or in your desktop browser at `http://localhost:...`.
-
 ## How it works
 
 1. Click **Turn on camera** (top-right of the "Capture faces" panel) to
